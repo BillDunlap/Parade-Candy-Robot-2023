@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.SPI;
 // import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.commands.DriveViaXboxController;
+import frc.robot.commands.GoToAprilTag;
 import frc.robot.commands.LEDFlash;
 // import frc.robot.commands.LaunchCandy;
 import frc.robot.commands.RunLEDPatrioticPattern;
@@ -39,10 +40,10 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private ApriltagInfo m_apriltagInfo;
   // JOYSTICKS/CONTROLLERS
-  public static XboxController driverJoy = new XboxController(RobotMap.driverJoy);
+  public static XboxController m_xboxController = new XboxController(RobotMap.xboxControllerPort);
 
   // BUTTONS
-  public static JoystickButton launchButton = new JoystickButton(driverJoy, RobotMap.launchButton);
+  public static JoystickButton launchButton = new JoystickButton(m_xboxController, RobotMap.launchButton);
 
   // MISCELLANEOUS
   // public static PneumaticHub pHub = new PneumaticHub(RobotMap.pcm);
@@ -90,7 +91,7 @@ public class RobotContainer {
     m_apriltagInfo = new ApriltagInfo(Constants.TEAM_NUMBER, "robot", new int[]{1, 2, 3, 4, 5, 6, 7, 8});
     // Configure the button bindings
     configureButtonBindings();
-    m_swerveDrive.setDefaultCommand(new DriveViaXboxController(m_swerveDrive, driverJoy));
+    m_swerveDrive.setDefaultCommand(new DriveViaXboxController(m_swerveDrive, m_xboxController));
   }
 
   /**
@@ -100,8 +101,10 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    System.out.println("configureButtonBinds [no buttons configured]");
+    // System.out.println("configureButtonBinds [no buttons configured]");
     // launchButton.onTrue(cmdLaunchCandy);
+    JoystickButton start = new JoystickButton(m_xboxController, XboxController.Button.kRightBumper.value);
+    start.whileTrue(new GoToAprilTag(m_swerveDrive, m_apriltagInfo, 3, 1.0, 0.1));
   }
 
   /**

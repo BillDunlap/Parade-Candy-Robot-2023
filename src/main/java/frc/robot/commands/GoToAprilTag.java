@@ -2,14 +2,17 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems;
+package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.subsystems.ApriltagInfo;
+import frc.robot.subsystems.SwerveDrive;
 
 public class GoToAprilTag extends CommandBase {
   int m_apriltagIdOfInterest;
   ApriltagInfo m_apriltagInfo;
   SwerveDrive m_swerveDrive;
+  boolean m_isFinished = false;
   double m_tolerance = 0.03; // how many meters from desired position is good enough
   double m_targetDistance  = 1.0; // how many meters to stand off from apriltag
   /** Creates a new GoToAprilTag. */
@@ -29,7 +32,17 @@ public class GoToAprilTag extends CommandBase {
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {}
+  public void execute() {
+    ApriltagInfo.ApriltagRecord apriltagRecord = m_apriltagInfo.getApriltagRecord(m_apriltagIdOfInterest);
+    if (!apriltagRecord.wasSeen()) {
+      System.out.print("" + m_apriltagIdOfInterest + " not seen - slowly spin");
+      m_swerveDrive.spinWithPercentSpeed(0.40);
+    } else {
+      System.out.print("" + m_apriltagIdOfInterest + " seen - stopping");
+      m_swerveDrive.stop();
+      m_isFinished = true;
+    }
+  }
 
   // Called once the command ends or is interrupted.
   @Override
@@ -40,8 +53,6 @@ public class GoToAprilTag extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    ApriltagInfo.ApriltagRecord apriltagRecord = m_apriltagInfo.getApriltagRecord(m_apriltagIdOfInterest);
-    // TODO: ApriltagRecord should have method to compute camera position relative to tag
-    return false;
+    return m_isFinished;
   }
 }
